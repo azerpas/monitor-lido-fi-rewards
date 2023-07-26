@@ -3,7 +3,7 @@ import os
 import json
 from lido import wei_to_eth
 
-def post_to_discord(rewards_in_usd, rewards_in_eth, total_rewards_in_usd, total_rewards_in_eth, average_apr, balance, change_1w, address):
+def post_to_discord(rewards_in_usd: float, rewards_in_eth: float, total_rewards_in_usd: float, total_rewards_in_eth: float, average_apr, balance, change_1w, address):
     http = urllib3.PoolManager()
 
     # Set headers
@@ -16,9 +16,9 @@ def post_to_discord(rewards_in_usd, rewards_in_eth, total_rewards_in_usd, total_
     embed = {
         "title": "Lido Staking Rewards (1 week)",
         "fields": [
-            {"name": "Rewards (USD)", "value": str(rewards_in_usd)},
+            {"name": "Rewards (USD)", "value": "{:.2f}$".format(rewards_in_usd)},
             {"name": "Rewards (ETH)", "value": str(wei_to_eth(rewards_in_eth))},
-            {"name": "Total rewards (USD)", "value": str(total_rewards_in_usd)},
+            {"name": "Total rewards (USD)", "value": "{:.2f}$".format(total_rewards_in_usd)},
             {"name": "Total rewards (ETH)", "value": str((wei_to_eth(total_rewards_in_eth)))},
             {"name": "Average APR", "value": str(average_apr) + "%"},
             {"name": "Balance", "value": str(balance)},
