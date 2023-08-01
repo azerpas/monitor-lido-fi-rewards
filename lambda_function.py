@@ -33,7 +33,7 @@ def lambda_handler(event, context):
     new_total_rewards_in_usd = total_rewards_in_usd + rewards['in_usd']
     new_total_rewards_in_eth = total_rewards_in_usd + rewards['in_eth']
 
-    change_1w = (rewards['balance'] - latest_balance) / latest_balance * 100
+    change_1w = (rewards['balance'] - latest_balance) / (latest_balance if latest_balance != 0 else 1) * 100
     
     post_to_discord(rewards['in_usd'], rewards['in_eth'], new_total_rewards_in_usd, new_total_rewards_in_eth, rewards['average_apr'], rewards['balance'], change_1w, ADDRESS)
     
