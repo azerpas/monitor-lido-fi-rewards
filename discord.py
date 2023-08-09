@@ -21,7 +21,7 @@ def post_to_discord(rewards_in_usd: float, rewards_in_eth: float, total_rewards_
             {"name": "Total rewards (USD)", "value": "{:.2f}$".format(total_rewards_in_usd)},
             {"name": "Total rewards (ETH)", "value": str((wei_to_eth(total_rewards_in_eth)))},
             {"name": "Average APR", "value": str(average_apr) + "%"},
-            {"name": "Balance", "value": str(balance)},
+            {"name": "Balance (ETH)", "value": str(balance)},
             {"name": "Change", "value": str(change_1w) + "%"},
             {"name": "Etherscan Link", "value": f"http://etherscan.io/address/{address}"},
             {"name": "Stake Lido Link", "value": "https://stake.lido.fi/"},
