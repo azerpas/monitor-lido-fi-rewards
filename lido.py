@@ -12,8 +12,8 @@ def read_rewards(rewards: Rewards):
     
     rewards_totals = rewards['totals']
     
-    if 'averageApr' in rewards_totals:
-        average_apr = float(rewards_totals['averageApr'])
+    if 'averageApr' in rewards:
+        average_apr = float(rewards['averageApr'])
     else:
         average_apr = 0.0
         
@@ -27,9 +27,17 @@ def read_rewards(rewards: Rewards):
     else:
         rewards_in_usd = 0.0
     
+    usd_weekly_rewards = 0
+    eth_weekly_rewards = 0
+    for event in rewards['events']:
+        usd_weekly_rewards += float(event['currencyChange'])
+        eth_weekly_rewards += float(event['change'])
+
     return {
-        "in_usd": rewards_in_usd if rewards_in_usd else 0.0,
-        "in_eth": rewards_in_eth if rewards_in_eth else 0.0,
+        "in_usd_weekly": usd_weekly_rewards if usd_weekly_rewards else 0.0,
+        "in_eth_weekly": eth_weekly_rewards if eth_weekly_rewards else 0.0,
+        "in_usd_total": rewards_in_usd if rewards_in_usd else 0.0,
+        "in_eth_total": rewards_in_eth if rewards_in_eth else 0.0,
         "average_apr": average_apr if average_apr else 0.0,
         "balance": balance if balance else 0.0
     }
