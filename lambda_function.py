@@ -2,18 +2,13 @@ import json
 import boto3
 import os
 import urllib3
-from lambda_config import (
-    get_latest_balance,
-    get_total_rewards_in_eth,
-    get_total_rewards_in_usd,
-)
+from lambda_config import get_latest_balance
 import lido
 from discord import post_to_discord
 
 ADDRESS = os.environ.get("ADDRESS")
 URL = f"https://stake.lido.fi/api/rewards?address={ADDRESS}&currency=usd&onlyRewards=false&archiveRate=true&skip=0&limit=7"
 FUNCTION_NAME = os.environ.get("FUNCTION_NAME")
-
 
 def lambda_handler(event, context):
     http = urllib3.PoolManager()
@@ -23,9 +18,7 @@ def lambda_handler(event, context):
         FunctionName=FUNCTION_NAME,
     )
 
-    total_rewards_in_eth = get_total_rewards_in_eth(config)
-    total_rewards_in_usd = get_total_rewards_in_usd(config)
-    latest_balance = get_latest_balance(config)
+    previous_balance = get_latest_balance(config)
 
     response = http.request(
         "GET", URL, headers={"Content-Type": "application/json"}, retries=False
@@ -34,18 +27,18 @@ def lambda_handler(event, context):
 
     rewards = lido.read_rewards(rewards)
 
-    new_total_rewards_in_usd = total_rewards_in_usd + rewards["in_usd"]
-    new_total_rewards_in_eth = total_rewards_in_eth + rewards["in_eth"]
+    new_total_rewards_in_usd = rewards["in_usd_total"]
+    new_total_rewards_in_eth = rewards["in_eth_total"]
 
     change_1w = (
-        (rewards["balance"] - latest_balance)
-        / (latest_balance if latest_balance != 0 else 1)
+        (rewards["balance"] - previous_balance)
+        / (previous_balance if previous_balance != 0 else 1)
         * 100
     )
 
     post_to_discord(
-        rewards["in_usd"],
-        rewards["in_eth"],
+        rewards["in_usd_weekly"],
+        rewards["in_eth_weekly"],
         new_total_rewards_in_usd,
         new_total_rewards_in_eth,
         rewards["average_apr"],
@@ -59,8 +52,6 @@ def lambda_handler(event, context):
         Environment={
             "Variables": {
                 "LATEST_BALANCE": str(rewards["balance"]),
-                "TOTAL_REWARDS_IN_USD": str(new_total_rewards_in_usd),
-                "TOTAL_REWARDS_IN_ETH": str(new_total_rewards_in_eth),
                 "ADDRESS": os.environ.get("ADDRESS"),
                 "WEBHOOK": os.environ.get("WEBHOOK"),
                 "FUNCTION_NAME": os.environ.get("FUNCTION_NAME"),
